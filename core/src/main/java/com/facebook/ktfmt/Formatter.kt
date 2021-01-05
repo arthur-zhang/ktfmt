@@ -20,6 +20,8 @@ import com.facebook.ktfmt.FormattingOptions.Style.DROPBOX
 import com.facebook.ktfmt.FormattingOptions.Style.GOOGLE
 import com.facebook.ktfmt.RedundantElementRemover.dropRedundantElements
 import com.facebook.ktfmt.debughelpers.printOps
+import com.facebook.ktfmt.importing.ImportSorter
+import com.facebook.ktfmt.importing.parseImportsLayout
 import com.facebook.ktfmt.kdoc.KDocCommentsHelper
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.Range
@@ -39,6 +41,7 @@ import org.jetbrains.kotlin.psi.psiUtil.endOffset
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
 
 const val DEFAULT_MAX_WIDTH: Int = 100
+private val IDEA_PATTERN = parseImportsLayout("*,java.*,javax.*,kotlin.*,com.cvte.*,com.seewo.*,com.imshine.*,^")
 
 @JvmField
 val GOOGLE_FORMAT = FormattingOptions(style = GOOGLE, blockIndent = 2, continuationIndent = 2)
@@ -47,7 +50,7 @@ val GOOGLE_FORMAT = FormattingOptions(style = GOOGLE, blockIndent = 2, continuat
 val DROPBOX_FORMAT = FormattingOptions(style = DROPBOX, blockIndent = 4, continuationIndent = 4)
 
 data class FormattingOptions(
-    val style: Style = Style.FACEBOOK,
+    val style: Style = Style.DROPBOX,
 
     /** ktfmt breaks lines longer than maxWidth. */
     val maxWidth: Int = DEFAULT_MAX_WIDTH,
@@ -62,7 +65,7 @@ data class FormattingOptions(
      * }
      * ```
      */
-    val blockIndent: Int = 2,
+    val blockIndent: Int = 4,
 
     /**
      * continuationIndent is the size of the indent used when a line is broken because it's too
@@ -201,7 +204,11 @@ fun sortedAndDistinctImports(code: String): String {
           " " +
           if (importDirective.isAllUnder) "*" else ""
 
-  val sortedImports = importList.imports.sortedBy(::canonicalText).distinctBy(::canonicalText)
+    val importSorter = ImportSorter(IDEA_PATTERN)
+    val sortedImports = importList.imports
+        .map{ it as  KtImportDirective}
+        .sortedWith(importSorter)
+        .distinctBy(::canonicalText)
 
   return code.replaceRange(
       importList.startOffset,
