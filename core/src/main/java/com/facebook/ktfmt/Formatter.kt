@@ -40,7 +40,7 @@ import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
 
-const val DEFAULT_MAX_WIDTH: Int = 100
+const val DEFAULT_MAX_WIDTH: Int = 120
 private val IDEA_PATTERN = parseImportsLayout("*,java.*,javax.*,kotlin.*,com.cvte.*,com.seewo.*,com.imshine.*,^")
 
 @JvmField
