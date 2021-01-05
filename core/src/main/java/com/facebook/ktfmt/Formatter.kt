@@ -206,7 +206,7 @@ fun sortedAndDistinctImports(code: String): String {
 
     val importSorter = ImportSorter(IDEA_PATTERN)
     val sortedImports = importList.imports
-        .map{ it as  KtImportDirective}
+        .filterIsInstance<KtImportDirective>()
         .sortedWith(importSorter)
         .distinctBy(::canonicalText)
 
